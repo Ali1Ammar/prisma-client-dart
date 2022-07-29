@@ -1,0 +1,13 @@
+name: prisma_dart
+version: 6.3.1
+description:
+repository: 
+environment:
+  sdk: '>=2.14.0 <3.0.0'
+
+dependencies:
+  json_annotation: 
+
+dev_dependencies:
+    json_serializable: ^6.3.1
+    build_runner:

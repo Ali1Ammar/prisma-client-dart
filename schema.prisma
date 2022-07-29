@@ -1,0 +1,15 @@
+datasource db {
+    url = env("DATABASE_URL")
+
+    provider = "postgresql"
+}
+
+generator client {
+    provider = "dart /home/aliammar/Desktop/dart_build_learn/prisma-client-dart/lib/main.dart"
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}
