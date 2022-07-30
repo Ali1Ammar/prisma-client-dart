@@ -423,7 +423,7 @@ class OuterInputType {
 class SchemaInputType {
   final bool isRequired;
   final bool isList;
-  final Type type;
+  final String type;
   final FieldKind kind;
   final String namespace;
   final String location;
