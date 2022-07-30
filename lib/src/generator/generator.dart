@@ -25,7 +25,7 @@ class Generator {
   final String name;
   final dynamic provider; //TODO 	Output        *Value         `json:"output"`
   final List<BinaryTarget> binaryTargets;
-  final PinnedBinaryTarget pinnedBinaryTarget;
+  final String? pinnedBinaryTarget;
   Generator(this.output, this.name, this.provider, this.binaryTargets, this.pinnedBinaryTarget);
 
   factory Generator.fromJson(Map<String, dynamic> json) =>
