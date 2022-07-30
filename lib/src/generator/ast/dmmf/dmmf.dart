@@ -148,11 +148,12 @@ class ActionType {
     ActionType("First", "One", true, false),
     ActionType("Many", "Many", true, true),
   ];
-}
 
-// func (Document) Types() []string {
+  static const types = ["Unique", "Many"];
+  // func (Document) Types() []string {
 // 	return []string{"Unique", "Many"}
 // }
+}
 
 @JsonSerializable()
 class Method {
@@ -262,7 +263,11 @@ class Model {
   Map<String, dynamic> toJson() => _$ModelToJson(this);
 
   static const actions = ["Set", "Equals"];
-
+  List<Field> relationFieldsPlusOne() {
+    return fields
+        .where((f) => f.kind.isRelation())
+        .toList(); //TODO we may add empty field
+  }
 //   func (m Model) RelationFieldsPlusOne() []Field {//TODOdmmf.go :  245
 // 	var fields []Field
 // 	for _, field := range m.Fields {
@@ -422,9 +427,11 @@ class SchemaInputType {
   final FieldKind kind;
   final String namespace;
   final String location;
-  SchemaInputType(this.isRequired, this.isList, this.type, this.kind, this.namespace, this.location);
+  SchemaInputType(this.isRequired, this.isList, this.type, this.kind,
+      this.namespace, this.location);
 
-  factory SchemaInputType.fromJson(Map<String, dynamic> json) => _$SchemaInputTypeFromJson(json);
+  factory SchemaInputType.fromJson(Map<String, dynamic> json) =>
+      _$SchemaInputTypeFromJson(json);
   Map<String, dynamic> toJson() => _$SchemaInputTypeToJson(this);
 }
 
@@ -434,7 +441,8 @@ class OutputType {
   final List<SchemaField> fields;
   OutputType(this.name, this.fields);
 
-  factory OutputType.fromJson(Map<String, dynamic> json) => _$OutputTypeFromJson(json);
+  factory OutputType.fromJson(Map<String, dynamic> json) =>
+      _$OutputTypeFromJson(json);
   Map<String, dynamic> toJson() => _$OutputTypeToJson(this);
 }
 
@@ -445,7 +453,8 @@ class SchemaField {
   final List<OuterInputType> args;
   SchemaField(this.name, this.outputType, this.args);
 
-  factory SchemaField.fromJson(Map<String, dynamic> json) => _$SchemaFieldFromJson(json);
+  factory SchemaField.fromJson(Map<String, dynamic> json) =>
+      _$SchemaFieldFromJson(json);
   Map<String, dynamic> toJson() => _$SchemaFieldToJson(this);
 }
 
@@ -457,20 +466,23 @@ class SchemaOutputType {
   final FieldKind kind;
   SchemaOutputType(this.type, this.isList, this.isRequired, this.kind);
 
-  factory SchemaOutputType.fromJson(Map<String, dynamic> json) => _$SchemaOutputTypeFromJson(json);
+  factory SchemaOutputType.fromJson(Map<String, dynamic> json) =>
+      _$SchemaOutputTypeFromJson(json);
   Map<String, dynamic> toJson() => _$SchemaOutputTypeToJson(this);
 }
 
 @JsonSerializable()
 class CoreType {
-final String name;
-final bool? isWhereType;
-final bool? isOrderType;
-final bool? atLeastOne;
-final bool? atMostOne;
-final List<OuterInputType> fields;
-  CoreType(this.name, this.isWhereType, this.isOrderType, this.atLeastOne, this.atMostOne, this.fields);
+  final String name;
+  final bool? isWhereType;
+  final bool? isOrderType;
+  final bool? atLeastOne;
+  final bool? atMostOne;
+  final List<OuterInputType> fields;
+  CoreType(this.name, this.isWhereType, this.isOrderType, this.atLeastOne,
+      this.atMostOne, this.fields);
 
-  factory CoreType.fromJson(Map<String, dynamic> json) => _$CoreTypeFromJson(json);
+  factory CoreType.fromJson(Map<String, dynamic> json) =>
+      _$CoreTypeFromJson(json);
   Map<String, dynamic> toJson() => _$CoreTypeToJson(this);
 }
