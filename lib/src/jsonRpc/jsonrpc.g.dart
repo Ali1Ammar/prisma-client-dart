@@ -28,11 +28,11 @@ const _$MethodEnumMap = {
 Response _$ResponseFromJson(Map<String, dynamic> json) => Response(
       json['id'] as int,
       json['jsonrpc'] as String,
-      json['result'],
+      ManifestResponse.fromJson(json['result'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ResponseToJson(Response instance) => <String, dynamic>{
       'id': instance.id,
       'jsonrpc': instance.jsonrpc,
-      'result': instance.result,
+      'result': instance.result.toJson(),
     };

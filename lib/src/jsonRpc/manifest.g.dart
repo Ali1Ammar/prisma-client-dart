@@ -35,5 +35,5 @@ ManifestResponse _$ManifestResponseFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ManifestResponseToJson(ManifestResponse instance) =>
     <String, dynamic>{
-      'manifest': instance.manifest,
+      'manifest': instance.manifest.toJson(),
     };

@@ -2,6 +2,7 @@ import 'package:prisma_dart/src/generator/ast/transform/ast.dart';
 import 'package:prisma_dart/src/generator/ast/transform/filters.dart';
 import 'package:prisma_dart/src/generator/ast/transform/model.dart';
 import 'package:prisma_dart/src/generator/ast/dmmf/dmmf.dart' as dmmf_file;
+import 'package:prisma_dart/src/generator/types.dart';
 
 const list = "List";
 
@@ -77,12 +78,13 @@ List<Filter> readFilters(AST ast) {
 
     filters.add(Filter(p.name, methods));
 
-    ast.models[i].fields.add(Field(//TODO readfilter.go :93
+    ast.models[i].fields.add(Field(
         dmmf_file.Field(
-      "relevance",
-      "scalar",
-      // p.Name.GoCase()
-    )));
+              kind: dmmf_file.FieldKind.scalar,
+              name: "relevance",
+              type:  p.name.dartCase,
+
+    ),false));
   }
 
   return filters;
@@ -110,7 +112,7 @@ Method? convertField(dmmf_file.OuterInputType field) {
 
   String typeName = ""; //TODO
   bool isList = false;
-  for (final inputType in field.inputTypes) {
+  for (final inputType in field.inputTypes??[]) {
     if ((inputType.location == "scalar" || inputType.location == "enumTypes") &&
         inputType.type != "Null") {
       typeName = inputType.type;
@@ -119,8 +121,9 @@ Method? convertField(dmmf_file.OuterInputType field) {
       }
     }
   }
+  
   return Method(
-    field.name, //TODO GoCase()
+    field.name.dartCase ,
     field.name,
     isList,
     "",

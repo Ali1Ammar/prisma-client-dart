@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:prisma_dart/src/generator/ast/dmmf/dmmf.dart';
+import 'package:prisma_dart/src/generator/ast/transform/ast.dart';
 
 part "generator.g.dart";
 
@@ -8,12 +9,13 @@ class Root {
   final Generator generator;
   final List<Generator> otherGenerators;
   final String schemaPath;
-  final Document DMMF;
+  final Document dmmf;
   final List<Datasource> datasources;
   final String datamodel;
-  final BinaryPaths binaryPaths;
-  final AST ast;
-  Root(this.generator, this.otherGenerators, this.schemaPath, this.DMMF, this.datasources, this.datamodel, this.binaryPaths, this.ast);
+  final BinaryPaths? binaryPaths;
+  @JsonKey(ignore: true)
+  late AST ast; 
+  Root(this.generator, this.otherGenerators, this.schemaPath, this.dmmf, this.datasources, this.datamodel, this.binaryPaths);
 
   factory Root.fromJson(Map<String, dynamic> json) => _$RootFromJson(json);
   Map<String, dynamic> toJson() => _$RootToJson(this);
@@ -57,7 +59,7 @@ class Value {
 @JsonSerializable()
 class EnvValue {
   final String fromEnvVar;
-  final String value;
+  final String? value;
   EnvValue(this.fromEnvVar, this.value);
 
   factory EnvValue.fromJson(Map<String, dynamic> json) => _$EnvValueFromJson(json);
@@ -75,12 +77,16 @@ sqlite,
 postgresql
 }
 
+ConnectorType? toConnectorType(String? name)=>name==null?null:ConnectorType.values.byName(name);
+String? fromConnectorType(ConnectorType? type)=>type?.name;
+
 @JsonSerializable()
 class Datasource {
   final String name;
-  final ConnectorType connectorType;
+  @JsonKey(fromJson: toConnectorType, toJson: fromConnectorType)
+  final ConnectorType? connectorType;
   final EnvValue url;
-  final Map config;
+  final Map? config;
 
   Datasource(this.name, this.connectorType, this.url, this.config);
 

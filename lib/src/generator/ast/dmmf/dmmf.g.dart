@@ -13,9 +13,9 @@ Document _$DocumentFromJson(Map<String, dynamic> json) => Document(
     );
 
 Map<String, dynamic> _$DocumentToJson(Document instance) => <String, dynamic>{
-      'datamodel': instance.datamodel,
-      'schema': instance.schema,
-      'mappings': instance.mappings,
+      'datamodel': instance.datamodel.toJson(),
+      'schema': instance.schema.toJson(),
+      'mappings': instance.mappings.toJson(),
     };
 
 Mappings _$MappingsFromJson(Map<String, dynamic> json) => Mappings(
@@ -26,8 +26,9 @@ Mappings _$MappingsFromJson(Map<String, dynamic> json) => Mappings(
     );
 
 Map<String, dynamic> _$MappingsToJson(Mappings instance) => <String, dynamic>{
-      'modelOperations': instance.modelOperations,
-      'otherOperations': instance.otherOperations,
+      'modelOperations':
+          instance.modelOperations.map((e) => e.toJson()).toList(),
+      'otherOperations': instance.otherOperations.toJson(),
     };
 
 OtherOperations _$OtherOperationsFromJson(Map<String, dynamic> json) =>
@@ -93,13 +94,13 @@ Type _$TypeFromJson(Map<String, dynamic> json) => Type(
 
 Map<String, dynamic> _$TypeToJson(Type instance) => <String, dynamic>{
       'name': instance.name,
-      'methods': instance.methods,
+      'methods': instance.methods.map((e) => e.toJson()).toList(),
     };
 
 SchemaEnum _$SchemaEnumFromJson(Map<String, dynamic> json) => SchemaEnum(
       json['name'] as String,
       (json['values'] as List<dynamic>).map((e) => e as String).toList(),
-      json['dbName'] as String,
+      json['dbName'] as String?,
     );
 
 Map<String, dynamic> _$SchemaEnumToJson(SchemaEnum instance) =>
@@ -111,19 +112,21 @@ Map<String, dynamic> _$SchemaEnumToJson(SchemaEnum instance) =>
 
 Enumz _$EnumzFromJson(Map<String, dynamic> json) => Enumz(
       json['name'] as String,
-      (json['values'] as List<dynamic>).map((e) => e as String).toList(),
-      json['dbName'] as String,
+      (json['values'] as List<dynamic>)
+          .map((e) => EnumValue.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      json['dbName'] as String?,
     );
 
 Map<String, dynamic> _$EnumzToJson(Enumz instance) => <String, dynamic>{
       'name': instance.name,
-      'values': instance.values,
+      'values': instance.values.map((e) => e.toJson()).toList(),
       'dbName': instance.dbName,
     };
 
 EnumValue _$EnumValueFromJson(Map<String, dynamic> json) => EnumValue(
       json['name'] as String,
-      json['dbName'] as String,
+      json['dbName'] as String?,
     );
 
 Map<String, dynamic> _$EnumValueToJson(EnumValue instance) => <String, dynamic>{
@@ -141,8 +144,8 @@ Datamodel _$DatamodelFromJson(Map<String, dynamic> json) => Datamodel(
     );
 
 Map<String, dynamic> _$DatamodelToJson(Datamodel instance) => <String, dynamic>{
-      'models': instance.models,
-      'enums': instance.enums,
+      'models': instance.models.map((e) => e.toJson()).toList(),
+      'enums': instance.enums.map((e) => e.toJson()).toList(),
     };
 
 UniqueIndex _$UniqueIndexFromJson(Map<String, dynamic> json) => UniqueIndex(
@@ -158,28 +161,30 @@ Map<String, dynamic> _$UniqueIndexToJson(UniqueIndex instance) =>
 
 Model _$ModelFromJson(Map<String, dynamic> json) => Model(
       json['name'] as String,
-      json['dbName'] as String,
+      json['dbName'] as String?,
       (json['fields'] as List<dynamic>)
           .map((e) => Field.fromJson(e as Map<String, dynamic>))
           .toList(),
       (json['uniqueIndexes'] as List<dynamic>)
           .map((e) => UniqueIndex.fromJson(e as Map<String, dynamic>))
           .toList(),
-      json['isEmbedded'] as bool,
-      PrimaryKey.fromJson(json['primaryKey'] as Map<String, dynamic>),
+      json['isEmbedded'] as bool?,
+      json['primaryKey'] == null
+          ? null
+          : PrimaryKey.fromJson(json['primaryKey'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ModelToJson(Model instance) => <String, dynamic>{
       'name': instance.name,
       'isEmbedded': instance.isEmbedded,
       'dbName': instance.dbName,
-      'fields': instance.fields,
-      'uniqueIndexes': instance.uniqueIndexes,
-      'primaryKey': instance.primaryKey,
+      'fields': instance.fields.map((e) => e.toJson()).toList(),
+      'uniqueIndexes': instance.uniqueIndexes.map((e) => e.toJson()).toList(),
+      'primaryKey': instance.primaryKey?.toJson(),
     };
 
 PrimaryKey _$PrimaryKeyFromJson(Map<String, dynamic> json) => PrimaryKey(
-      json['name'] as String,
+      json['name'] as String?,
       (json['fields'] as List<dynamic>).map((e) => e as String).toList(),
     );
 
@@ -190,25 +195,25 @@ Map<String, dynamic> _$PrimaryKeyToJson(PrimaryKey instance) =>
     };
 
 Field _$FieldFromJson(Map<String, dynamic> json) => Field(
-      $enumDecode(_$FieldKindEnumMap, json['kind']),
-      json['name'] as String,
-      json['isRequired'] as bool,
-      json['isList'] as bool,
-      json['isUnique'] as bool,
-      json['isReadOnly'] as bool,
-      json['isId'] as bool,
-      Type.fromJson(json['type'] as Map<String, dynamic>),
-      json['dbName'] as String?,
-      json['isGenerated'] as bool,
-      json['isUpdatedAt'] as bool,
-      json['relationToFields'] as List<dynamic>?,
-      json['relationOnDelete'] as String?,
-      json['relationName'] as String?,
-      json['hasDefaultValue'] as bool,
+      kind: toFieldKindNoNull(json['kind'] as String),
+      name: json['name'] as String,
+      isRequired: json['isRequired'] as bool? ?? false,
+      isList: json['isList'] as bool? ?? false,
+      isUnique: json['isUnique'] as bool? ?? false,
+      isReadOnly: json['isReadOnly'] as bool? ?? false,
+      isId: json['isId'] as bool? ?? false,
+      type: json['type'] as String,
+      dbName: json['dbName'] as String?,
+      isGenerated: json['isGenerated'] as bool? ?? false,
+      isUpdatedAt: json['isUpdatedAt'] as bool? ?? false,
+      relationToFields: json['relationToFields'] as List<dynamic>?,
+      relationOnDelete: json['relationOnDelete'] as String?,
+      relationName: json['relationName'] as String?,
+      hasDefaultValue: json['hasDefaultValue'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$FieldToJson(Field instance) => <String, dynamic>{
-      'kind': _$FieldKindEnumMap[instance.kind]!,
+      'kind': fromFieldKindNoNull(instance.kind),
       'name': instance.name,
       'isRequired': instance.isRequired,
       'isList': instance.isList,
@@ -225,14 +230,8 @@ Map<String, dynamic> _$FieldToJson(Field instance) => <String, dynamic>{
       'hasDefaultValue': instance.hasDefaultValue,
     };
 
-const _$FieldKindEnumMap = {
-  FieldKind.scalar: 'scalar',
-  FieldKind.object: 'object',
-  FieldKind.enumz: 'enumz',
-};
-
 Schema _$SchemaFromJson(Map<String, dynamic> json) => Schema(
-      json['rootQueryType'] as String,
+      json['rootQueryType'] as String?,
       json['rootMutationType'] as String?,
       InputObjectType.fromJson(
           json['inputObjectTypes'] as Map<String, dynamic>),
@@ -243,23 +242,23 @@ Schema _$SchemaFromJson(Map<String, dynamic> json) => Schema(
 Map<String, dynamic> _$SchemaToJson(Schema instance) => <String, dynamic>{
       'rootQueryType': instance.rootQueryType,
       'rootMutationType': instance.rootMutationType,
-      'inputObjectTypes': instance.inputObjectTypes,
-      'outputObjectTypes': instance.outputObjectTypes,
-      'enumTypes': instance.enumTypes,
+      'inputObjectTypes': instance.inputObjectTypes.toJson(),
+      'outputObjectTypes': instance.outputObjectTypes.toJson(),
+      'enumTypes': instance.enumTypes.toJson(),
     };
 
 EnumTypes _$EnumTypesFromJson(Map<String, dynamic> json) => EnumTypes(
       (json['prisma'] as List<dynamic>)
           .map((e) => SchemaEnum.fromJson(e as Map<String, dynamic>))
           .toList(),
-      (json['model'] as List<dynamic>)
-          .map((e) => SchemaEnum.fromJson(e as Map<String, dynamic>))
+      (json['model'] as List<dynamic>?)
+          ?.map((e) => SchemaEnum.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
 Map<String, dynamic> _$EnumTypesToJson(EnumTypes instance) => <String, dynamic>{
-      'prisma': instance.prisma,
-      'model': instance.model,
+      'prisma': instance.prisma.map((e) => e.toJson()).toList(),
+      'model': instance.model?.map((e) => e.toJson()).toList(),
     };
 
 InputObjectType _$InputObjectTypeFromJson(Map<String, dynamic> json) =>
@@ -271,7 +270,7 @@ InputObjectType _$InputObjectTypeFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$InputObjectTypeToJson(InputObjectType instance) =>
     <String, dynamic>{
-      'prisma': instance.prisma,
+      'prisma': instance.prisma.map((e) => e.toJson()).toList(),
     };
 
 OutputObject _$OutputObjectFromJson(Map<String, dynamic> json) => OutputObject(
@@ -282,14 +281,14 @@ OutputObject _$OutputObjectFromJson(Map<String, dynamic> json) => OutputObject(
 
 Map<String, dynamic> _$OutputObjectToJson(OutputObject instance) =>
     <String, dynamic>{
-      'prisma': instance.prisma,
+      'prisma': instance.prisma.map((e) => e.toJson()).toList(),
     };
 
 OuterInputType _$OuterInputTypeFromJson(Map<String, dynamic> json) =>
     OuterInputType(
       json['name'] as String,
-      (json['inputTypes'] as List<dynamic>)
-          .map((e) => SchemaInputType.fromJson(e as Map<String, dynamic>))
+      (json['inputTypes'] as List<dynamic>?)
+          ?.map((e) => SchemaInputType.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['isRelationFilter'] as bool?,
     );
@@ -297,17 +296,17 @@ OuterInputType _$OuterInputTypeFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$OuterInputTypeToJson(OuterInputType instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'inputTypes': instance.inputTypes,
+      'inputTypes': instance.inputTypes?.map((e) => e.toJson()).toList(),
       'isRelationFilter': instance.isRelationFilter,
     };
 
 SchemaInputType _$SchemaInputTypeFromJson(Map<String, dynamic> json) =>
     SchemaInputType(
-      json['isRequired'] as bool,
+      json['isRequired'] as bool?,
       json['isList'] as bool,
-      Type.fromJson(json['type'] as Map<String, dynamic>),
-      $enumDecode(_$FieldKindEnumMap, json['kind']),
-      json['namespace'] as String,
+      json['type'] as String,
+      toFieldKind(json['kind'] as String?),
+      json['namespace'] as String?,
       json['location'] as String,
     );
 
@@ -316,7 +315,7 @@ Map<String, dynamic> _$SchemaInputTypeToJson(SchemaInputType instance) =>
       'isRequired': instance.isRequired,
       'isList': instance.isList,
       'type': instance.type,
-      'kind': _$FieldKindEnumMap[instance.kind]!,
+      'kind': fromFieldKind(instance.kind),
       'namespace': instance.namespace,
       'location': instance.location,
     };
@@ -331,7 +330,7 @@ OutputType _$OutputTypeFromJson(Map<String, dynamic> json) => OutputType(
 Map<String, dynamic> _$OutputTypeToJson(OutputType instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'fields': instance.fields,
+      'fields': instance.fields.map((e) => e.toJson()).toList(),
     };
 
 SchemaField _$SchemaFieldFromJson(Map<String, dynamic> json) => SchemaField(
@@ -345,16 +344,16 @@ SchemaField _$SchemaFieldFromJson(Map<String, dynamic> json) => SchemaField(
 Map<String, dynamic> _$SchemaFieldToJson(SchemaField instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'outputType': instance.outputType,
-      'args': instance.args,
+      'outputType': instance.outputType.toJson(),
+      'args': instance.args.map((e) => e.toJson()).toList(),
     };
 
 SchemaOutputType _$SchemaOutputTypeFromJson(Map<String, dynamic> json) =>
     SchemaOutputType(
       json['type'] as String,
       json['isList'] as bool,
-      json['isRequired'] as bool,
-      $enumDecode(_$FieldKindEnumMap, json['kind']),
+      json['isRequired'] as bool?,
+      toFieldKind(json['kind'] as String?),
     );
 
 Map<String, dynamic> _$SchemaOutputTypeToJson(SchemaOutputType instance) =>
@@ -362,7 +361,7 @@ Map<String, dynamic> _$SchemaOutputTypeToJson(SchemaOutputType instance) =>
       'type': instance.type,
       'isList': instance.isList,
       'isRequired': instance.isRequired,
-      'kind': _$FieldKindEnumMap[instance.kind]!,
+      'kind': fromFieldKind(instance.kind),
     };
 
 CoreType _$CoreTypeFromJson(Map<String, dynamic> json) => CoreType(
@@ -382,5 +381,5 @@ Map<String, dynamic> _$CoreTypeToJson(CoreType instance) => <String, dynamic>{
       'isOrderType': instance.isOrderType,
       'atLeastOne': instance.atLeastOne,
       'atMostOne': instance.atMostOne,
-      'fields': instance.fields,
+      'fields': instance.fields.map((e) => e.toJson()).toList(),
     };

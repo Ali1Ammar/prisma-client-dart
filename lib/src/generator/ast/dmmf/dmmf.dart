@@ -12,7 +12,23 @@ enum FieldKind {
 
   bool includeInStruct() => this == FieldKind.scalar || this == FieldKind.enumz;
   bool isRelation() => this == FieldKind.object;
+  static FieldKind byName(String name) {
+    for (var value in FieldKind.values) {
+      if (value.name == name) return value;
+    }
+    throw ArgumentError.value(name, "name", "No enum value with that name");
+  }
 }
+// EnumByName
+
+FieldKind? toFieldKind(String? name) => name==null?null: FieldKind.byName(name);
+String? fromFieldKind(FieldKind? val) => val?.name;
+
+FieldKind toFieldKindNoNull(String name) {
+  return FieldKind.byName(name);
+}
+String fromFieldKindNoNull(FieldKind val) => val.name;
+
 
 enum DatamodelFieldKind {
   scalar("scalar"),
@@ -192,7 +208,7 @@ class Type {
 class SchemaEnum {
   final String name;
   final List<String> values;
-  final String dbName;
+  final String? dbName;
 
   const SchemaEnum(this.name, this.values, this.dbName);
 
@@ -205,8 +221,8 @@ class SchemaEnum {
 @JsonSerializable()
 class Enumz {
   final String name;
-  final List<String> values;
-  final String dbName;
+  final List<EnumValue> values;
+  final String? dbName;
 
   const Enumz(this.name, this.values, this.dbName);
 
@@ -217,7 +233,7 @@ class Enumz {
 @JsonSerializable()
 class EnumValue {
   final String name;
-  final String dbName;
+  final String? dbName;
 
   const EnumValue(this.name, this.dbName);
 
@@ -251,11 +267,11 @@ class UniqueIndex {
 @JsonSerializable()
 class Model {
   final String name;
-  final bool isEmbedded;
-  final String dbName;
+  final bool? isEmbedded;
+  final String? dbName;
   final List<Field> fields;
   final List<UniqueIndex> uniqueIndexes;
-  final PrimaryKey primaryKey;
+  final PrimaryKey? primaryKey;
 
   const Model(this.name, this.dbName, this.fields, this.uniqueIndexes,
       this.isEmbedded, this.primaryKey);
@@ -265,7 +281,7 @@ class Model {
   static const actions = ["Set", "Equals"];
   List<Field> relationFieldsPlusOne() {
     return fields
-        .where((f) => f.kind.isRelation())
+        .where((f) => f.kind.isRelation())//TODO !
         .toList(); //TODO we may add empty field
   }
 //   func (m Model) RelationFieldsPlusOne() []Field {//TODOdmmf.go :  245
@@ -282,7 +298,7 @@ class Model {
 
 @JsonSerializable()
 class PrimaryKey {
-  final String name;
+  final String? name;
   final List<String> fields;
 
   const PrimaryKey(
@@ -296,6 +312,7 @@ class PrimaryKey {
 
 @JsonSerializable()
 class Field {
+  @JsonKey(fromJson: toFieldKindNoNull, toJson: fromFieldKindNoNull )
   final FieldKind kind;
   final String name;
   final bool isRequired;
@@ -303,7 +320,7 @@ class Field {
   final bool isUnique;
   final bool isReadOnly;
   final bool isId;
-  final Type type;
+  final String type;
 
   final String? dbName;
   final bool isGenerated;
@@ -314,21 +331,21 @@ class Field {
   final bool hasDefaultValue;
 
   Field(
-      this.kind,
-      this.name,
-      this.isRequired,
-      this.isList,
-      this.isUnique,
-      this.isReadOnly,
-      this.isId,
-      this.type,
+      {required this.kind,
+      required this.name,
+      this.isRequired = false,
+      this.isList = false,
+      this.isUnique = false,
+      this.isReadOnly = false,
+      this.isId = false,
+      required this.type,
       this.dbName,
-      this.isGenerated,
-      this.isUpdatedAt,
+      this.isGenerated = false,
+      this.isUpdatedAt = false,
       this.relationToFields,
       this.relationOnDelete,
       this.relationName,
-      this.hasDefaultValue);
+      this.hasDefaultValue = false});
 
   factory Field.fromJson(Map<String, dynamic> json) => _$FieldFromJson(json);
   Map<String, dynamic> toJson() => _$FieldToJson(this);
@@ -362,7 +379,7 @@ class RelationMethod {
 
 @JsonSerializable()
 class Schema {
-  final String rootQueryType;
+  final String? rootQueryType;
   final String? rootMutationType;
   final InputObjectType inputObjectTypes;
   final OutputObject outputObjectTypes;
@@ -379,7 +396,7 @@ class Schema {
 @JsonSerializable()
 class EnumTypes {
   final List<SchemaEnum> prisma;
-  final List<SchemaEnum> model;
+  final List<SchemaEnum>? model;
   EnumTypes(this.prisma, this.model);
 
   factory EnumTypes.fromJson(Map<String, dynamic> json) =>
@@ -410,7 +427,7 @@ class OutputObject {
 @JsonSerializable()
 class OuterInputType {
   final String name;
-  final List<SchemaInputType> inputTypes;
+  final List<SchemaInputType>? inputTypes;
   final bool? isRelationFilter;
   OuterInputType(this.name, this.inputTypes, this.isRelationFilter);
 
@@ -421,11 +438,12 @@ class OuterInputType {
 
 @JsonSerializable()
 class SchemaInputType {
-  final bool isRequired;
+  final bool? isRequired;
   final bool isList;
   final String type;
-  final FieldKind kind;
-  final String namespace;
+  @JsonKey(fromJson: toFieldKind, toJson: fromFieldKind)
+  final FieldKind? kind;
+  final String? namespace;
   final String location;
   SchemaInputType(this.isRequired, this.isList, this.type, this.kind,
       this.namespace, this.location);
@@ -462,8 +480,9 @@ class SchemaField {
 class SchemaOutputType {
   final String type;
   final bool isList;
-  final bool isRequired;
-  final FieldKind kind;
+  final bool? isRequired;
+  @JsonKey(fromJson: toFieldKind, toJson: fromFieldKind)
+  final FieldKind? kind;
   SchemaOutputType(this.type, this.isList, this.isRequired, this.kind);
 
   factory SchemaOutputType.fromJson(Map<String, dynamic> json) =>

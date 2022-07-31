@@ -15,7 +15,7 @@ final List<String> values;
   Map<String, dynamic> toJson() => _$EnumzToJson(this);
 
   static List<Enumz> enums(Document dmmf){
-    return dmmf.schema.enumTypes.model.map((e) => Enumz(e.name, e.values)).toList();
+    return dmmf.schema.enumTypes.model?.map((e) => Enumz(e.name, e.values)).toList() ??[];
   }
 }
 

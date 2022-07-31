@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:prisma_dart/src/jsonRpc/manifest.dart';
 
 part "jsonrpc.g.dart";
 
@@ -19,7 +20,7 @@ class Request {
 class Response {
   final int id;
   final String jsonrpc;
-  final dynamic result;
+  final ManifestResponse result;
 
   Response(this.id, this.jsonrpc, this.result);
 
@@ -27,7 +28,7 @@ class Response {
       _$ResponseFromJson(json);
   Map<String, dynamic> toJson() => _$ResponseToJson(this);
 
-  factory Response.newResponse(int id, dynamic result) {
+  factory Response.newResponse(int id, ManifestResponse result) {
     return Response(
       id,
       "2.0",
@@ -35,5 +36,10 @@ class Response {
     );
   }
 }
+
+// Map<String, dynamic> responseResultToJson(dynamic result) {
+//   print(result.toJson());
+//   return result.toJson();
+// }
 
 enum Method { getManifest, generate }

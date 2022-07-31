@@ -12,24 +12,25 @@ Root _$RootFromJson(Map<String, dynamic> json) => Root(
           .map((e) => Generator.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['schemaPath'] as String,
-      Document.fromJson(json['DMMF'] as Map<String, dynamic>),
+      Document.fromJson(json['dmmf'] as Map<String, dynamic>),
       (json['datasources'] as List<dynamic>)
           .map((e) => Datasource.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['datamodel'] as String,
-      BinaryPaths.fromJson(json['binaryPaths'] as Map<String, dynamic>),
-      json['ast'],
+      json['binaryPaths'] == null
+          ? null
+          : BinaryPaths.fromJson(json['binaryPaths'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$RootToJson(Root instance) => <String, dynamic>{
-      'generator': instance.generator,
-      'otherGenerators': instance.otherGenerators,
+      'generator': instance.generator.toJson(),
+      'otherGenerators':
+          instance.otherGenerators.map((e) => e.toJson()).toList(),
       'schemaPath': instance.schemaPath,
-      'DMMF': instance.DMMF,
-      'datasources': instance.datasources,
+      'dmmf': instance.dmmf.toJson(),
+      'datasources': instance.datasources.map((e) => e.toJson()).toList(),
       'datamodel': instance.datamodel,
-      'binaryPaths': instance.binaryPaths,
-      'ast': instance.ast,
+      'binaryPaths': instance.binaryPaths?.toJson(),
     };
 
 Generator _$GeneratorFromJson(Map<String, dynamic> json) => Generator(
@@ -39,14 +40,14 @@ Generator _$GeneratorFromJson(Map<String, dynamic> json) => Generator(
       (json['binaryTargets'] as List<dynamic>)
           .map((e) => BinaryTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
-      json['pinnedBinaryTarget'],
+      json['pinnedBinaryTarget'] as String?,
     );
 
 Map<String, dynamic> _$GeneratorToJson(Generator instance) => <String, dynamic>{
       'output': instance.output,
       'name': instance.name,
       'provider': instance.provider,
-      'binaryTargets': instance.binaryTargets,
+      'binaryTargets': instance.binaryTargets.map((e) => e.toJson()).toList(),
       'pinnedBinaryTarget': instance.pinnedBinaryTarget,
     };
 
@@ -73,7 +74,7 @@ Map<String, dynamic> _$ValueToJson(Value instance) => <String, dynamic>{
 
 EnvValue _$EnvValueFromJson(Map<String, dynamic> json) => EnvValue(
       json['fromEnvVar'] as String,
-      json['value'] as String,
+      json['value'] as String?,
     );
 
 Map<String, dynamic> _$EnvValueToJson(EnvValue instance) => <String, dynamic>{
@@ -83,25 +84,18 @@ Map<String, dynamic> _$EnvValueToJson(EnvValue instance) => <String, dynamic>{
 
 Datasource _$DatasourceFromJson(Map<String, dynamic> json) => Datasource(
       json['name'] as String,
-      $enumDecode(_$ConnectorTypeEnumMap, json['connectorType']),
+      toConnectorType(json['connectorType'] as String?),
       EnvValue.fromJson(json['url'] as Map<String, dynamic>),
-      json['config'] as Map<String, dynamic>,
+      json['config'] as Map<String, dynamic>?,
     );
 
 Map<String, dynamic> _$DatasourceToJson(Datasource instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'connectorType': _$ConnectorTypeEnumMap[instance.connectorType]!,
-      'url': instance.url,
+      'connectorType': fromConnectorType(instance.connectorType),
+      'url': instance.url.toJson(),
       'config': instance.config,
     };
-
-const _$ConnectorTypeEnumMap = {
-  ConnectorType.mysql: 'mysql',
-  ConnectorType.mongo: 'mongo',
-  ConnectorType.sqlite: 'sqlite',
-  ConnectorType.postgresql: 'postgresql',
-};
 
 BinaryPaths _$BinaryPathsFromJson(Map<String, dynamic> json) => BinaryPaths(
       Map<String, String>.from(json['migrationEngine'] as Map),

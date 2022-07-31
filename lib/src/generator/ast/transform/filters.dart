@@ -1,6 +1,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+part "filters.g.dart";
+
 @JsonSerializable()
 class Method {
   final String name;
