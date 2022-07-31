@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:prisma_dart/src/engine/engine.dart';
+
 class Input {
   final String name;
   final List<Field> fields;

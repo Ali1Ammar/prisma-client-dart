@@ -9,6 +9,7 @@ dependencies:
   collection: ^1.16.0
   http: ^0.13.4
   json_annotation: 
+  path: ^1.8.2
   recase: ^4.0.0
 
 dev_dependencies:
