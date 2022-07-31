@@ -22,13 +22,27 @@ class Root {
 }
 
 @JsonSerializable()
+class Config {
+  final String? engineType;
+  @JsonKey(defaultValue: "db")
+  final String package;
+  final String? disableGitignore;
+  final String? disableGoBinaries; //TODO has go in its name ???
+  Config(this.engineType, this.disableGitignore, this.disableGoBinaries , [this.package="db"]);
+
+  factory Config.fromJson(Map<String, dynamic> json) => _$ConfigFromJson(json);
+  Map<String, dynamic> toJson() => _$ConfigToJson(this);
+}
+
+@JsonSerializable()
 class Generator {
-  final dynamic output; //TODO 	Output        *Value         `json:"output"`
+  final Value output; //TODO 	Output        *Value         `json:"output"`
   final String name;
-  final dynamic provider; //TODO 	Output        *Value         `json:"output"`
+  final Value provider; //TODO 	Output        *Value         `json:"output"`
+  final Config config;
   final List<BinaryTarget> binaryTargets;
   final String? pinnedBinaryTarget;
-  Generator(this.output, this.name, this.provider, this.binaryTargets, this.pinnedBinaryTarget);
+  Generator(this.output, this.name, this.provider, this.binaryTargets, this.pinnedBinaryTarget, this.config);
 
   factory Generator.fromJson(Map<String, dynamic> json) =>
       _$GeneratorFromJson(json);
@@ -48,7 +62,7 @@ class BinaryTarget {
 
 @JsonSerializable()
 class Value {
-  final String fromEnvVar;
+  final String? fromEnvVar;
   final String value;
   Value(this.fromEnvVar, this.value);
 

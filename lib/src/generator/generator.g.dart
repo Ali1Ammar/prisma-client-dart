@@ -33,20 +33,36 @@ Map<String, dynamic> _$RootToJson(Root instance) => <String, dynamic>{
       'binaryPaths': instance.binaryPaths?.toJson(),
     };
 
+Config _$ConfigFromJson(Map<String, dynamic> json) => Config(
+      json['engineType'] as String?,
+      json['disableGitignore'] as String?,
+      json['disableGoBinaries'] as String?,
+      json['package'] as String? ?? 'db',
+    );
+
+Map<String, dynamic> _$ConfigToJson(Config instance) => <String, dynamic>{
+      'engineType': instance.engineType,
+      'package': instance.package,
+      'disableGitignore': instance.disableGitignore,
+      'disableGoBinaries': instance.disableGoBinaries,
+    };
+
 Generator _$GeneratorFromJson(Map<String, dynamic> json) => Generator(
-      json['output'],
+      Value.fromJson(json['output'] as Map<String, dynamic>),
       json['name'] as String,
-      json['provider'],
+      Value.fromJson(json['provider'] as Map<String, dynamic>),
       (json['binaryTargets'] as List<dynamic>)
           .map((e) => BinaryTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       json['pinnedBinaryTarget'] as String?,
+      Config.fromJson(json['config'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$GeneratorToJson(Generator instance) => <String, dynamic>{
-      'output': instance.output,
+      'output': instance.output.toJson(),
       'name': instance.name,
-      'provider': instance.provider,
+      'provider': instance.provider.toJson(),
+      'config': instance.config.toJson(),
       'binaryTargets': instance.binaryTargets.map((e) => e.toJson()).toList(),
       'pinnedBinaryTarget': instance.pinnedBinaryTarget,
     };
@@ -63,7 +79,7 @@ Map<String, dynamic> _$BinaryTargetToJson(BinaryTarget instance) =>
     };
 
 Value _$ValueFromJson(Map<String, dynamic> json) => Value(
-      json['fromEnvVar'] as String,
+      json['fromEnvVar'] as String?,
       json['value'] as String,
     );
 
