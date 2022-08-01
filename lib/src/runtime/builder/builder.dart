@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:prisma_dart/src/engine/engine.dart';
+import 'package:prisma_dart/src/engine/protocol.dart';
 
 class Input {
   final String name;
@@ -39,7 +40,7 @@ class Query {
   List<Output> output=[];
   late DateTime startTime;
 
-  late Map<String, dynamic> txResult;//TODO this was written as chan in golang
+  late Object txResult;//TODO this was written as chan in golang
 
   Query({required this.engine,required this.operation,this.name,required this.method, this.model,
      required this.input,});
@@ -170,4 +171,16 @@ ${buildOutputs(output)}
     return builder.toString();
   }
   
+  Object exec(){
+    final payload = GQLRequest(
+      build(),
+      {}
+    );
+    return doThis(payload);
+  }
+
+  Object doThis(GQLRequest payload)  {
+    return engine.execute(payload.toJson()); 
+  }
+
 }
