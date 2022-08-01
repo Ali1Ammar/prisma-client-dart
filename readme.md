@@ -5,11 +5,13 @@
 2. response to "getManifest"
 3. get the dmmf from prisma
 4. complete rewrite(from golang client) all the interface(class) to parse the dmmf json into dart classes
+5. Download the engine
+6. cli interface for the engine
+7. complete rewrite all the code from golang (except for the template that create a client)
 
 **TODO**
 1. generate a dart client library based on dmmf 
 2. generate graphql to communicate with prisma
-3. download the prisma engine without the need to npm
 4. mange prisma engine lifecycle
 5. docs it
 6. testing
