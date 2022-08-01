@@ -60,8 +60,8 @@ String parseLinuxDistro(String str) {
   return "debian";
 }
 
-Future<String> getOpenSSL() async {
-  final procRes = await Process.run("openssl", ["version", "-v"]);
+String getOpenSSL()  {
+  final procRes =  Process.runSync("openssl", ["version", "-v"]);
   final out = procRes.stdout as String;
   if (out.isEmpty) return "";
   return parseOpenSSLVersion(out);

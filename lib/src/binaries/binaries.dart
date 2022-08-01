@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart';
 import 'package:path/path.dart';
 import 'package:prisma_dart/helper/cahce_dir.dart';
+import 'package:prisma_dart/helper/chmod.dart';
 import 'package:prisma_dart/src/binaries/platform/platform.dart';
 
 const prismaVersion = "3.13.0";
@@ -16,7 +17,7 @@ const engineVersion = "efdf9b1183dddfd4258cd181a72125755215ab7b";
 var prismaURL =
     "https://prisma-photongo.s3-eu-west-1.amazonaws.com/%s-%s-%s.gz"; //TODO
 String prismaURLBuilder(String name, String version, String platform) =>
-    "https://prisma-photongo.s3-eu-west-1.amazonaws.com//$name-$version-$platform.gz";
+    "https://prisma-photongo.s3-eu-west-1.amazonaws.com/$name-$version-$platform.gz";
 
 // EngineURL points to an S3 bucket URL where the Prisma engines are stored.
 var engineURL = "https://binaries.prisma.sh/all_commits/%s/%s/%s.gz";
@@ -74,7 +75,7 @@ String globalUnpackDir(String version) {
   return join(globalTempDir(version), "unpacked", "v2");
 }
 
-String globalCacheDir(String version) {
+String globalCacheDir() {
   final cache = userCacheDir();
   return join(cache, baseDirName, "cli", prismaVersion);
 }
@@ -84,16 +85,17 @@ void fetchEngine(String toDir, String engineName, String binaryPlatformName) {
   final to = checkForExtension(binaryPlatformName, path);
   final binaryPlatformRemoteName =
       binaryPlatformName == "linux" ? "linux-musl" : binaryPlatformName;
+
   final url = checkForExtension(binaryPlatformName,
       engineURLBuilder(engineVersion, binaryPlatformRemoteName, engineName));
-  final file = File(url);
+  final file = File(to);
   if (file.existsSync()) return; //TODO cahced
   print("Downloading $url");
   download(url, to);
 }
 
 Future<void> fetchNative(String toDir) async {
-  final dir = Directory(toDir);
+  final dir = File(toDir);
   if (!dir.isAbsolute) throw Exception("Path must be absolute");
   await downloadCLI(toDir);
   for (var element in Engine.engines) {
@@ -106,7 +108,8 @@ Future<void> downloadCLI(String toDir) async {
   final to = checkForExtension(Platform.operatingSystem, join(toDir, cli));
   final url = checkForExtension(Platform.operatingSystem,
       prismaURLBuilder("prisma-cli", prismaVersion, Platform.operatingSystem));
-  if (!Directory(to).existsSync()) {
+  print(to);
+  if (!File(to).existsSync()) {
     print(
         "prisma cli doesn't exist, fetching... (this might take a few minutes)");
     await download(url, to);
@@ -115,22 +118,22 @@ Future<void> downloadCLI(String toDir) async {
   }
 }
 
-String getEnginePath(String dir,String engine, String binaryName){
-  return checkForExtension(binaryName, 
-  join(dir,engineVersion, "prisma-$engine-$binaryName" )
-  );
+String getEnginePath(String dir, String engine, String binaryName) {
+  return checkForExtension(
+      binaryName, join(dir, engineVersion, "prisma-$engine-$binaryName"));
 }
 
 Future<String> downloadEngine(String name, String toDir) async {
-  final binaryName = await binaryPlatformName();
+  final binaryName = binaryPlatformName();
   final to = checkForExtension(
       binaryName, join(toDir, engineVersion, "prisma-$name-$binaryName"));
   final url = checkForExtension(
       binaryName, engineURLBuilder(engineVersion, binaryName, name));
-  if (Directory(to).existsSync()) {
+  if (File(to).existsSync()) {
     print("$to is cached");
     return to;
   }
+
   print("Downloading $url");
   final startDownload = DateTime.now();
   await download(url, to);
@@ -139,13 +142,15 @@ Future<String> downloadEngine(String name, String toDir) async {
 }
 
 Future<void> download(String url, String to) async {
-  Directory(to).createSync(recursive: true);
+  Directory(to.substring(0, to.lastIndexOf("/"))).createSync(recursive: true);
 
   final resp = await get(Uri.parse(url));
   if (resp.statusCode != 200) {
     throw Exception("received code ${resp.statusCode} from $url: ${resp.body}");
   }
-  final dest = File("$to.tmp");
-  dest.writeAsBytesSync(resp.bodyBytes);
-  dest.copy(to);
+   final afterGzip = GZipCodec().decode(resp.bodyBytes);
+  final temp = File("$to.tmp");
+  temp.writeAsBytesSync(afterGzip);
+  await temp.copy(to);
+  await makeExecutable(to);
 }
