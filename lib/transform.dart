@@ -5,8 +5,4 @@ AST transform(Root input) {
   final ast = AST(input.dmmf);
   input.ast = ast;
   return ast;
-  // if os.Getenv("DEBUG") != "" {
-  // 	d, _ := json.MarshalIndent(input.AST, "", "  ")
-  // 	fmt.Printf("AST: %s\n", string(d))
-  // }
 }
