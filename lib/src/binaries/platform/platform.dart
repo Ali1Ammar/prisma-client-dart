@@ -2,14 +2,14 @@ import 'dart:io';
 
 String? binaryNameWithSSLCache;
 
-Future<String> binaryPlatformName() async {
+String binaryPlatformName() {
   if (binaryNameWithSSLCache != null) {
     return binaryNameWithSSLCache!;
   }
 
   final os = Platform.operatingSystem;
   if (os != "linux") return os;
-  final distro = await getLinuxDistro();
+  final distro = getLinuxDistro();
   if (distro == "alpine") return "linux-musl";
   final ssl = getOpenSSL();
   binaryNameWithSSLCache = "$distro-openssl-$ssl";
@@ -26,8 +26,8 @@ String checkForExtension(String platform, String path) {
   return path;
 }
 
-Future<String> getLinuxDistro() async {
-  final procRes = await Process.run("cat", ["/etc/os-release"]);
+String getLinuxDistro() {
+  final procRes = Process.runSync("cat", ["/etc/os-release"]);
   final out = procRes.stdout as String;
   if (out.isEmpty) return "debian";
   return parseLinuxDistro(out);
