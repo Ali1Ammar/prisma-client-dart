@@ -3,7 +3,7 @@
 abstract class Engine {
   connect();
   disconnect();
-  execute(Map payload, Map into);
-  batch(Map payload, Map into);
+  Map<String,dynamic> execute(Map<String,dynamic> payload);
+  Map<String,dynamic> batch(Map<String,dynamic> payload);
   name();
 }

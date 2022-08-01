@@ -7,7 +7,11 @@ import 'package:prisma_dart/src/engine/engine.dart';
 
   Lifecycle(this.engine);
 
-  void connect();
-  void disConnect();
+  void connect(){
+    engine.connect();//TODO may become async
+  }
+  void disConnect(){
+    engine.disconnect();
+  }
 
 }

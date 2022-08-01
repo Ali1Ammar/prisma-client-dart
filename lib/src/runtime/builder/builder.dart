@@ -5,10 +5,10 @@ import 'package:prisma_dart/src/engine/engine.dart';
 class Input {
   final String name;
   final List<Field> fields;
-  final Map<String, dynamic>? value;
+  final Object value;
   final bool wrapList;
 
-  Input(this.name, this.fields, this.value, this.wrapList);
+  Input(this.name, this.value, [this.fields=const[],this.wrapList=false]);//TODO const list
 }
 
 class Output {
@@ -32,17 +32,17 @@ class Field {
 class Query {
   final Engine engine;
   final String operation;
-  final String name;
+  final String? name;
   final String method;
-  final String model;
+  final String? model;
   final List<Input> input;
-  final List<Output> output;
-  final DateTime startTime;
+  List<Output> output=[];
+  late DateTime startTime;
 
-  // final TxResult //TODO
+  late Map<String, dynamic> txResult;//TODO this was written as chan in golang
 
-  Query(this.engine, this.operation, this.name, this.method, this.model,
-      this.input, this.output, this.startTime);
+  Query({required this.engine,required this.operation,this.name,required this.method, this.model,
+     required this.input,});
 
   String build() {
     return """
