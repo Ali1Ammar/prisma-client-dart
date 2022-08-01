@@ -12,21 +12,21 @@ import 'package:prisma_dart/src/engine/query_engine.dart';
 import 'package:prisma_dart/src/engine/request.dart';
 
 //TODO logger
-void connect(QueryEngine engine) {
+Future<void> connect(QueryEngine engine) async {
   final file = ensure(engine);
-  spawn(engine, file);
+  await spawn(engine, file);
 }
 
-void disconnect(QueryEngine engine) {
+Future<void> disconnect(QueryEngine engine) async {
   engine.disconnected = true;
-  engine.cmd.kill();
+  await engine.cmd.kill();
 }
 
-String ensure(QueryEngine engine) {
+ensure(QueryEngine engine)  {
   final binariesPath = globalUnpackDir(engineVersion);
   final os = Platform.operatingSystem;
   final binaryName = checkForExtension(os, os);
-  final exactBinaryName = checkForExtension(os, binaryPlatformName());
+  final exactBinaryName = checkForExtension(os,binaryPlatformName());
   var forceVersion = true;
   String? file;
   var name = "prisma-query-engine-";
@@ -60,6 +60,7 @@ String ensure(QueryEngine engine) {
     print("query engine found in global path");
     file = globalPath;
   }
+  print(file);
   if (file == null) {
     throw "no binary found";
   }
@@ -77,6 +78,7 @@ String ensure(QueryEngine engine) {
   print("using query engine at ");
   print("ensure query engine took ");
   return file;
+
 }
 
 Future<void> spawn(QueryEngine engine, String file) async {

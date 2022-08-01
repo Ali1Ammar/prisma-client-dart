@@ -1,6 +1,10 @@
 import 'dart:io';
 
+import 'package:code_builder/code_builder.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart';
+import 'package:prisma_dart/src/code_builder/generator/client.dart';
+import 'package:prisma_dart/src/code_builder/root.dart';
 import 'package:prisma_dart/src/generator/generator.dart';
 
 runGenerator(Root input) {
@@ -13,5 +17,22 @@ runGenerator(Root input) {
     File(
       join(dir.path, ".gitignore"),
     ).writeAsStringSync(gitignore);
+    root = input;
+    final builders = [buildPrismaClient()];
+    final specs = [
+      for (final code in builders) ...[
+        Code("// start of ${code.name}\n\n\n"),
+        ...code.code,
+        Code("\n\n\n // end of ${code.name}\n\n\n"),
+      ]
+    ];
+    final lib = Library((lib) {
+      lib.body.addAll(specs);
+    });
+    final emitter = DartEmitter.scoped();
+    final code = DartFormatter().format('${lib.accept(emitter)}');
+    final file = File(join(dir.path, "prisma.dart"))
+      ..createSync(recursive: true);
+    file.writeAsStringSync(code);
   }
 }

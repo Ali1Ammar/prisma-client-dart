@@ -16,3 +16,5 @@ class BatchResult {
 }
 
 //TODO a lot of other types didnt needed for now
+
+ typedef JsonMap = Map<String, dynamic> ;

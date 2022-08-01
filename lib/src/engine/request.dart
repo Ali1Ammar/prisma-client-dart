@@ -4,15 +4,16 @@ import 'package:prisma_dart/src/engine/do.dart';
 import 'package:prisma_dart/src/engine/protocol.dart';
 import 'package:prisma_dart/src/engine/query_engine.dart';
 import 'package:prisma_dart/src/runtime/types/error.dart';
+import 'package:prisma_dart/src/runtime/types/types.dart';
 
 const internalUpdateNotFoundMessage =
     "Error occurred during query execution: InterpretationError(\"Error for binding '0'\", Some(QueryGraphBuilderError(RecordNotFound(\"Record to update not found.\"))))";
 const internalDeleteNotFoundMessage =
     "Error occurred during query execution: InterpretationError(\"Error for binding '0'\", Some(QueryGraphBuilderError(RecordNotFound(\"Record to delete does not exist.\"))))";
 
-Future<Map> execute(
+Future<JsonMap> execute(
   QueryEngine engine,
-  Map payload,
+  JsonMap payload,
 ) async {
   final startReq = DateTime.now();
   final body = await request(engine, "POST", "/", payload);
@@ -30,13 +31,13 @@ Future<Map> execute(
   //TODO recheck this
 }
 
-Future<Map> batch(QueryEngine engine, Map payload) async {
+Future<JsonMap> batch(QueryEngine engine, JsonMap payload) async {
   final body = await request(engine, "POST", "/", payload);
   return json.decode(body);
 }
 
 Future<String> request(
-    QueryEngine engine, String method, String path, Map payload) async {
+    QueryEngine engine, String method, String path, JsonMap payload) async {
   if (engine.disconnected) {
     throw Exception("Engine is disconnected"); //TODO better error
   }

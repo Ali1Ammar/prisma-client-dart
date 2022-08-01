@@ -1,9 +1,9 @@
 
 
 abstract class Engine {
-  connect();
-  disconnect();
-  Map<String,dynamic> execute(Map<String,dynamic> payload);
-  Map<String,dynamic> batch(Map<String,dynamic> payload);
-  name();
+  Future<void>  connect();
+  Future<void>  disconnect();
+  Future<Map<String,dynamic>> execute(Map<String,dynamic> payload);
+  Future<Map<String,dynamic>> batch(Map<String,dynamic> payload);
+  String get name;
 }

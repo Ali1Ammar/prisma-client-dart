@@ -15,7 +15,7 @@ class Command {
     if(started!=null) return started!;
     return started= Process.start(path, args,environment: env);
   }
-  kill()async{
+  Future<void> kill()async{
     if(started==null) return;
     final p = await started!;
     p.kill( );

@@ -31,10 +31,11 @@ class Exec {
   final List<GQLRequest> requests;
 
   Exec(this.queries, this.engine, this.requests);
-  void exec() {
-    //TODO this code was using channel but we removed 
+  Future<void> exec() async {
+    //TODO this code was using channel but we removed
     GQLBatchRequest payload = GQLBatchRequest(requests, true);
-    final result = GQLBatchResponse.fromJson(engine.batch(payload.toJson()));
+    final result =
+        GQLBatchResponse.fromJson(await engine.batch(payload.toJson()));
     if (result.errors.isNotEmpty) {
       throw result.errors.first;
     }
@@ -48,6 +49,5 @@ class Exec {
           inner.data.result; //TODO this was written in golang use <- operator
 
     }
-
   }
 }

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:prisma_dart/helper/cahce_dir.dart';
 import 'package:prisma_dart/src/generator/ast/dmmf/dmmf.dart';
 import 'package:prisma_dart/src/generator/ast/transform/ast.dart';
 
@@ -19,6 +20,13 @@ class Root {
 
   factory Root.fromJson(Map<String, dynamic> json) => _$RootFromJson(json);
   Map<String, dynamic> toJson() => _$RootToJson(this);
+
+  String getEngineType(){
+    final type = getEnv("PRISMA_CLIENT_ENGINE_TYPE");
+    if(type.isNotEmpty) return type;
+    return generator.config.engineType??"binary";
+  }
+
 }
 
 @JsonSerializable()
