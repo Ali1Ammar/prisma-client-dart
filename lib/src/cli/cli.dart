@@ -27,8 +27,7 @@ Future<void> runCli(List<String> args, bool output) async {
   }
 
   var join2 = join(dir, prisma);
-  print(join2);
-  final out = await Process.run(join2, args, environment: env);
-  print(out.stdout);
-  print(out.stderr);
+  final out = await Process.start(join2, args, environment: env);
+  stdout.addStream(out.stdout);
+  stderr.addStream(out.stderr);
 }

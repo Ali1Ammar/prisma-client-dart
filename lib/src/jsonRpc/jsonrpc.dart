@@ -20,7 +20,7 @@ class Request {
 class Response {
   final int id;
   final String jsonrpc;
-  final ManifestResponse result;
+  final Map<String,dynamic>? result;
 
   Response(this.id, this.jsonrpc, this.result);
 
@@ -28,7 +28,7 @@ class Response {
       _$ResponseFromJson(json);
   Map<String, dynamic> toJson() => _$ResponseToJson(this);
 
-  factory Response.newResponse(int id, ManifestResponse result) {
+  factory Response.newResponse(int id, Map<String,dynamic>? result) {
     return Response(
       id,
       "2.0",

@@ -6,7 +6,6 @@ import 'package:prisma_dart/src/cli/cli.dart';
 
 void main(List<String> args) async {
   if (args.isNotEmpty) {
-    print("invoking command $args");
     if (args[0] == "prefetch") {
       await runCli(["-v"], true);
       return;
@@ -15,7 +14,6 @@ void main(List<String> args) async {
     return;
   }
 
-  print("invoking prisma");
   if (getEnv("PRISMA_GENERATOR_INVOCATION").isEmpty) {
     print(
         "This command is only meant to be invoked internally. Please run the following instead:");
@@ -24,8 +22,7 @@ void main(List<String> args) async {
     print("`dart run main.dart  generate`");
     exit(1);
   }
-
-  //TODO
+  print("invoking prisma");
 
   invokePrisma();
 }
