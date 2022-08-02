@@ -10,9 +10,8 @@
 7. complete rewrite all the code from golang (except for the template that create a client)
 
 **TODO**
-1. generate a dart client library based on dmmf 
+1. generate a dart client library based on ast.
 2. generate graphql to communicate with prisma
-4. mange prisma engine lifecycle
 5. docs it
 6. testing
 
