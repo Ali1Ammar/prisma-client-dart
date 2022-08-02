@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dotenv/dotenv.dart';
 import 'package:path/path.dart';
 import 'package:prisma_dart/helper/cahce_dir.dart';
 import 'package:prisma_dart/helper/command.dart';
@@ -84,7 +85,7 @@ binaryName $binaryName
     final note =
         "Did you forget to run `go run github.com/prisma/prisma-client-go generate`?";
     if (forceVersion) {
-      throw "expected query engine version $engineVersion, but got $out ${engineVersion==out}. $note";
+      throw "expected query engine version $engineVersion, but got $out ${engineVersion == out}. $note";
     }
     print("$note, ignoring since custom query engine was provided");
   }
@@ -96,50 +97,69 @@ binaryName $binaryName
 Future<void> spawn(QueryEngine engine, String file) async {
   final port = await getPort();
   final url = "http://localhost:$port";
+  final dotEnv = DotEnv()..load();
   final cmd = Command(
       file,
-      ["--port", port.toString(), "--enable-raw-queries"],
+      ["-p", port.toString(), "--enable-raw-queries"],
       stdout,
       stderr,
       {
+        // ignore: invalid_use_of_visible_for_testing_member
+        ...dotEnv.map, //TODO find a better place to load dotEnv
         ...Platform.environment,
         "PRISMA_DML": engine.schema,
-        "RUST_LOG": "error",
+        // "RUST_LOG": "error",//TODO re enable it after disable below TODO
         "RUST_LOG_FORMAT": "json",
         "PRISMA_CLIENT_ENGINE_TYPE": "binary",
+        "PRISMA_LOG":
+            "QUERIES=y", //TODO only for logging and debugging disable it
+        "RUST_LOG":
+            "info", //TODO only for logging and debugging disable it  , and enable the above TODO
       });
   await cmd.start();
   Object? connectErr;
+  StackTrace? stack;
   List<GQLError>? gqlErrors;
   engine.cmd = cmd;
   engine.url = url;
   for (var i = 0; i < 100; i++) {
     try {
       final body = await request(engine, "GET", "/status", {});
-
+      final decodeBody = json.decode(body) as Map<String, dynamic>;
       try {
-        final res = GQLResponse.fromJson(json.decode(body));
+        if (decodeBody.containsKey("status") && decodeBody['status'] == "ok") {
+          connectErr = null;
+          gqlErrors = null;
+          break;
+        }
+        final res = GQLResponse.fromJson(decodeBody);
         if (res.errors.isNotEmpty) {
           gqlErrors = res.errors;
           sleep(Duration(milliseconds: 50));
           continue;
         }
+        connectErr = null;
+        gqlErrors = null;
         break;
-      } catch (e) {
+      } catch (e, s) {
         connectErr = e;
+        stack = s;
         sleep(Duration(milliseconds: 50));
         continue;
       }
-    } catch (e) {
+    } catch (e, s) {
       connectErr = e;
+      stack = s;
       sleep(Duration(milliseconds: 100));
       continue;
     }
   }
   if (connectErr != null) {
-    throw Exception("readiness query error: $connectErr");
+    throw Exception(
+      "readiness query error connectErr: $connectErr \n $stack",
+    );
   }
   if (gqlErrors != null) {
-    throw Exception("readiness query error: $gqlErrors");
+    throw Exception("readiness query error gqlErrors : $gqlErrors");
   }
 }

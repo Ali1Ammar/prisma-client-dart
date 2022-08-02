@@ -4,7 +4,7 @@ import 'package:prisma_dart/generator.dart';
 import 'package:prisma_dart/helper/cahce_dir.dart';
 import 'package:prisma_dart/src/cli/cli.dart';
 
-void main(List<String> args) async {
+void main(List<String> args) async {  
   if (args.isNotEmpty) {
     if (args[0] == "prefetch") {
       await runCli(["-v"], true);
