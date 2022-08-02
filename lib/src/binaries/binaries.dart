@@ -90,7 +90,7 @@ void fetchEngine(String toDir, String engineName, String binaryPlatformName) {
       engineURLBuilder(engineVersion, binaryPlatformRemoteName, engineName));
   final file = File(to);
   if (file.existsSync()) return; //TODO cahced
-  print("Downloading $url");
+  // print("Downloading $url");
   download(url, to);
 }
 
@@ -130,11 +130,11 @@ Future<String> downloadEngine(String name, String toDir) async {
   final url = checkForExtension(
       binaryName, engineURLBuilder(engineVersion, binaryName, name));
   if (File(to).existsSync()) {
-    print("$to is cached");
+    // print("$to is cached");
     return to;
   }
 
-  print("Downloading $url");
+  // print("Downloading $url");
   final startDownload = DateTime.now();
   await download(url, to);
   print("download() took ${DateTime.now().difference(startDownload)} ");

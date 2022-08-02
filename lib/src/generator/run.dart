@@ -3,7 +3,12 @@ import 'dart:io';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart';
+import 'package:prisma_dart/src/binaries/binaries.dart';
+import 'package:prisma_dart/src/binaries/bindata/bindata.dart';
+import 'package:prisma_dart/src/binaries/platform/platform.dart';
 import 'package:prisma_dart/src/code_builder/generator/client.dart';
+import 'package:prisma_dart/src/code_builder/generator/datamodel.dart';
+import 'package:prisma_dart/src/code_builder/generator/export.dart';
 import 'package:prisma_dart/src/code_builder/root.dart';
 import 'package:prisma_dart/src/generator/generator.dart';
 
@@ -18,21 +23,58 @@ runGenerator(Root input) {
       join(dir.path, ".gitignore"),
     ).writeAsStringSync(gitignore);
     root = input;
-    final builders = [buildPrismaClient()];
-    final specs = [
-      for (final code in builders) ...[
-        Code("// start of ${code.name}\n\n\n"),
-        ...code.code,
-        Code("\n\n\n // end of ${code.name}\n\n\n"),
-      ]
-    ];
-    final lib = Library((lib) {
-      lib.body.addAll(specs);
-    });
+
+    // generate client
+    final builders = [buildPrismaClient(), buildDataModelField()];
+    for (var builder in builders) {
+      final lib = Library(((lib) => lib.body.addAll(builder.code)));
+      final emitter = DartEmitter.scoped();
+      final code = DartFormatter().format('${lib.accept(emitter)}');
+      final file = File(join(dir.path, "src", "${builder.name}.dart"))
+        ..createSync(recursive: true);
+
+      file.writeAsStringSync(code);
+    }
+    final exportFile = buildExportFile(builders);
     final emitter = DartEmitter.scoped();
-    final code = DartFormatter().format('${lib.accept(emitter)}');
-    final file = File(join(dir.path, "prisma.dart"))
-      ..createSync(recursive: true);
-    file.writeAsStringSync(code);
+    final code = DartFormatter().format('${exportFile.accept(emitter)}');
+    File(join(dir.path, "prisma.dart"))
+      ..createSync(recursive: true)
+      ..writeAsStringSync(code);
+
+    //generate binaries
+    generateBinaries(input);
+  }
+}
+
+generateBinaries(Root input) {
+  if (input.generator.config.disableGoBinaries == "true") return;
+  final targets = input.generator.binaryTargets
+      .map((e) => e.value)
+      .followedBy(["native", "linux"]).toList();
+  for (var name in targets) {
+    if (name == "native") {
+      name = binaryPlatformName();
+    }
+    fetchEngine(globalCacheDir(), "query-engine", name);
+  }
+  generateQueryEngineFiles(
+      targets, join(input.generator.output.value, "engine"));
+}
+
+generateQueryEngineFiles(List<String> binaryTargets, String outputDir) {
+  for (var name in binaryTargets) {
+    if (name == "native") {
+      name = binaryPlatformName();
+    }
+    final enginePath = getEnginePath(globalCacheDir(), "query-engine", name);
+    var pt = name;
+    if (name.contains("debian") || name.contains("rhel")) {
+      pt = "linux";
+    }
+    final fileName = "query_engine_${pt}s_gen.dart";
+    // final to = join(outputDir, fileName);
+    writeUpackEngineCode(
+        name.replaceAll("-", "_"), pt, enginePath, outputDir, fileName);
   }
 }

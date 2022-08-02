@@ -7,6 +7,7 @@ late Root root;
 class CodePart {
   final List<Spec> code;
   final String name;
+  final bool exportToUser;
 
-  CodePart(this.code, this.name);
+  CodePart(this.code, this.name, [this.exportToUser=true]);
 }

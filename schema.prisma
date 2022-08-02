@@ -6,6 +6,7 @@ datasource db {
 
 generator client {
     provider = "dart /home/aliammar/Desktop/dart_build_learn/prisma-client-dart/lib/main.dart"
+    output= "example/lib/prisma"
 }
 
 enum SystemEmpType {

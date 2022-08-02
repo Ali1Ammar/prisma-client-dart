@@ -22,11 +22,11 @@ Future<void> disconnect(QueryEngine engine) async {
   await engine.cmd.kill();
 }
 
-ensure(QueryEngine engine)  {
+ensure(QueryEngine engine) {
   final binariesPath = globalUnpackDir(engineVersion);
   final os = Platform.operatingSystem;
   final binaryName = checkForExtension(os, os);
-  final exactBinaryName = checkForExtension(os,binaryPlatformName());
+  final exactBinaryName = checkForExtension(os, binaryPlatformName());
   var forceVersion = true;
   String? file;
   var name = "prisma-query-engine-";
@@ -36,6 +36,20 @@ ensure(QueryEngine engine)  {
   final globalExactPath = join(binariesPath, name + exactBinaryName);
 
   final prismaQueryEngineBinary = getEnv("PRISMA_QUERY_ENGINE_BINARY");
+  print("""
+binariesPath $binariesPath
+os $os
+name $name
+exactBinaryName $exactBinaryName
+prismaQueryEngineBinary $prismaQueryEngineBinary
+globalExactPath $globalExactPath
+globalPath $globalPath
+localExactPath $localExactPath
+localPath $localPath
+binaryName $binaryName
+
+""");
+
   if (prismaQueryEngineBinary.isNotEmpty) {
     print("PRISMA_QUERY_ENGINE_BINARY is defined, using");
 
@@ -60,25 +74,23 @@ ensure(QueryEngine engine)  {
     print("query engine found in global path");
     file = globalPath;
   }
-  print(file);
   if (file == null) {
     throw "no binary found";
   }
 
   var out = Process.runSync(file, ["--version"]).stdout as String;
-  out = out.trim().replaceFirst("query-engine", "");
+  out = out.replaceFirst("query-engine", "").trim();
   if (engineVersion != out) {
     final note =
         "Did you forget to run `go run github.com/prisma/prisma-client-go generate`?";
     if (forceVersion) {
-      throw "expected query engine version $engineVersion, but got $out. $note";
+      throw "expected query engine version $engineVersion, but got $out ${engineVersion==out}. $note";
     }
     print("$note, ignoring since custom query engine was provided");
   }
   print("using query engine at ");
   print("ensure query engine took ");
   return file;
-
 }
 
 Future<void> spawn(QueryEngine engine, String file) async {
@@ -99,6 +111,8 @@ Future<void> spawn(QueryEngine engine, String file) async {
   await cmd.start();
   Object? connectErr;
   List<GQLError>? gqlErrors;
+  engine.cmd = cmd;
+  engine.url = url;
   for (var i = 0; i < 100; i++) {
     try {
       final body = await request(engine, "GET", "/status", {});

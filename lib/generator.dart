@@ -24,7 +24,7 @@ void invokePrisma() {
           response = ManifestResponse(
                   manifest: Manifest(
                       prettyName: "Prisma Client Dart",
-                      defaultOutput: "prisma/generated"))
+                      defaultOutput: "lib/prisma"))
               .toJson();
           break;
 

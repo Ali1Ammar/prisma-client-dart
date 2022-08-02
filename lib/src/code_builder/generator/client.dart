@@ -9,6 +9,9 @@ Directive.import('package:prisma_dart/src/engine/query_engine.dart'),
 Directive.import('package:prisma_dart/src/runtime/lifecycle/lifecycle.dart'),
 Directive.import('package:prisma_dart/src/runtime/raw/raw.dart'),
 Directive.import('package:prisma_dart/src/runtime/transaction/transaction.dart'),
+Directive.import('../engine/query_engine_linuxs_gen.dart'),
+Directive.import('datamodel.dart')
+
   ];
   final client = Class((b) {
     b.name = 'PrismaClient';
@@ -37,8 +40,9 @@ Directive.import('package:prisma_dart/src/runtime/transaction/transaction.dart')
       StringBuffer buffer = StringBuffer();
       //TODO ,ove datamodel to its own file
       buffer.write("""
+    init();
     final engine = QueryEngine(
-        Client(), '''${root.datamodel}''', ${root.generator.binaryTargets.isNotEmpty});
+        Client(), datamodel, ${root.generator.binaryTargets.isNotEmpty});
     return PrismaClient.newClient(
         engine, PrismaActions(Lifecycle(engine), Raw(engine), TX(engine)));
 """);
