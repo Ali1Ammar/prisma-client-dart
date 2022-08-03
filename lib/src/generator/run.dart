@@ -8,6 +8,7 @@ import 'package:prisma_dart/src/binaries/bindata/bindata.dart';
 import 'package:prisma_dart/src/binaries/platform/platform.dart';
 import 'package:prisma_dart/src/code_builder/generator/client.dart';
 import 'package:prisma_dart/src/code_builder/generator/datamodel.dart';
+import 'package:prisma_dart/src/code_builder/generator/enum.dart';
 import 'package:prisma_dart/src/code_builder/generator/export.dart';
 import 'package:prisma_dart/src/code_builder/root.dart';
 import 'package:prisma_dart/src/generator/generator.dart';
@@ -25,7 +26,7 @@ runGenerator(Root input) {
     root = input;
 
     // generate client
-    final builders = [buildPrismaClient(), buildDataModelField()];
+    final builders = [buildPrismaClient(), buildDataModelField(),buildEnum()];
     for (var builder in builders) {
       final lib = Library(((lib) => lib.body.addAll(builder.code)));
       final emitter = DartEmitter.scoped();
